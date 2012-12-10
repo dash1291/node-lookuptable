@@ -7,13 +7,13 @@
 
 using namespace v8;
 
-class IndexedTable : public node::ObjectWrap {
+class LookupTable : public node::ObjectWrap {
 public:
 	static v8::Persistent<v8::FunctionTemplate> constructor;
 	static void Init(v8::Handle<v8::Object> target);
 
 protected:
-	IndexedTable(const v8::Arguments& args);
+	LookupTable(const v8::Arguments& args);
 
 	static v8::Handle<v8::Value> Value(const v8::Arguments& args);
 	v8::Handle<v8::Value> Push(const v8::Arguments& args);
