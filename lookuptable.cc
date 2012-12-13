@@ -1,7 +1,6 @@
 #include <map>
 
 #include <node.h>
-#include <iostream>
 #include "lookuptable.h"
 
 using namespace v8;
