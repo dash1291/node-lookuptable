@@ -3,7 +3,7 @@ Lookup Table
 
 This is part of my expedition to learning to write Node.js modules in C++.
 
-Lookup Table helps in fast lookups on an array of objects/associative arrays. Its motive is similar to IndexedDB where one can do fast lookups because of indexing on fields. Lookup Table also achieves fast lookups with the help of indexing on all the fields. 
+Lookup Table helps in fast lookups on an array of objects/associative arrays. Lookup Table achieves this with the help of indexing on all the fields that is keys in individual elements of the array. 
 
 For example, if you have an array in JavaScript:
 
