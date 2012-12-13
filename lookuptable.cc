@@ -1,6 +1,7 @@
 #include <map>
 
 #include <node.h>
+#include <iostream>
 #include "lookuptable.h"
 
 using namespace v8;
@@ -11,13 +12,15 @@ void LookupTable::Init(Handle<Object> target) {
 	// Define constructor
 	Local<FunctionTemplate> t = FunctionTemplate::New(New);
 	t->SetClassName(String::NewSymbol("LookupTable"));
-	t->InstanceTemplate()->SetInternalFieldCount(2);
+	t->InstanceTemplate()->SetInternalFieldCount(3);
 
 	// Define prototype
 	t->PrototypeTemplate()->Set(String::NewSymbol("insert"),
 		FunctionTemplate::New(Insert)->GetFunction());
 	t->PrototypeTemplate()->Set(String::NewSymbol("lookup"),
 		FunctionTemplate::New(Lookup)->GetFunction());
+	t->PrototypeTemplate()->Set(String::NewSymbol("get"),
+		FunctionTemplate::New(Get)->GetFunction());
 
 	// Layer the constructor
 	Persistent<Function> constructor = Persistent<Function>::New(t->GetFunction());
@@ -29,6 +32,21 @@ Handle<Value> LookupTable::New(const Arguments& args) {
 	newObj->Wrap(args.This());
 
 	return args.This();
+}
+
+Handle<Value> LookupTable::Get(const Arguments& args) {
+	HandleScope scope;
+
+	LookupTable *thisObj = ObjectWrap::Unwrap<LookupTable>(args.This());
+	int index = args[0]->IntegerValue();
+	std::map<std::string, std::string> element = thisObj->array[index];
+
+	Local<Object> obj = Object::New();
+	// Iterate over the map keys and build a JS object and return it
+	for( std::map<std::string, std::string>::iterator ii=element.begin(); ii!=element.end(); ++ii) {
+    	obj->Set(String::NewSymbol((*ii).first.c_str()), String::NewSymbol((*ii).second.c_str()));
+   	}
+   	return scope.Close(obj);
 }
 
 // This method handles the inserts - goes as the .insert(Object element) method in JS.
