@@ -23,7 +23,9 @@ protected:
 	static v8::Handle<v8::Value> Insert(const v8::Arguments& args);
 	static v8::Handle<v8::Value> Lookup(const v8::Arguments& args);
 	static v8::Handle<v8::Value> Get(const v8::Arguments& args);
-
+	static v8::Handle<v8::Value> Remove(const v8::Arguments& args);
+	static v8::Handle<v8::Value> Length(const v8::Arguments& args);
+	
 	void PrepareIndices();
 
 private:

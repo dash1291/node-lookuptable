@@ -11,7 +11,7 @@ void LookupTable::Init(Handle<Object> target) {
 	// Define constructor
 	Local<FunctionTemplate> t = FunctionTemplate::New(New);
 	t->SetClassName(String::NewSymbol("LookupTable"));
-	t->InstanceTemplate()->SetInternalFieldCount(3);
+	t->InstanceTemplate()->SetInternalFieldCount(5);
 
 	// Define prototype
 	t->PrototypeTemplate()->Set(String::NewSymbol("insert"),
@@ -20,6 +20,10 @@ void LookupTable::Init(Handle<Object> target) {
 		FunctionTemplate::New(Lookup)->GetFunction());
 	t->PrototypeTemplate()->Set(String::NewSymbol("get"),
 		FunctionTemplate::New(Get)->GetFunction());
+	t->PrototypeTemplate()->Set(String::NewSymbol("remove"),
+		FunctionTemplate::New(Remove)->GetFunction());
+	t->PrototypeTemplate()->Set(String::NewSymbol("length"),
+		FunctionTemplate::New(Length)->GetFunction());
 
 	// Layer the constructor
 	Persistent<Function> constructor = Persistent<Function>::New(t->GetFunction());
@@ -78,9 +82,7 @@ Handle<Value> LookupTable::Insert(const Arguments& args) {
 		// Use the lookupkey structure to store to index.
 		// Uses two level maps. Stores the fields in the first level, and
 		// stores the values-element offset pair in the second level.
-		lookupkey lk;
-		lk.ind[*valStr] = (int)thisObj->array.size();
-		thisObj->indices[*keyStr] = lk;
+		thisObj->indices[*keyStr].ind[*valStr] = (int)thisObj->array.size();
 		i++;
 	}
 	// Insert the element map into our array vector.
@@ -99,6 +101,34 @@ Handle<Value> LookupTable::Lookup(const Arguments& args) {
 	String::AsciiValue key(args[1]->ToString());
 
 	return scope.Close(Number::New(thisObj->indices[*field].ind[*key]));
+}
+
+// Removes an element from given index - goes as .remove(index) in JS.
+Handle<Value> LookupTable::Remove(const Arguments& args) {
+	HandleScope scope;
+
+	LookupTable *thisObj = ObjectWrap::Unwrap<LookupTable>(args.This());
+	int index = args[0]->IntegerValue();
+	std::map<std::string, std::string> element = thisObj->array[index];
+
+	// Remove a pair from the index map for every key found in the element to be removed.
+	for(std::map<std::string, std::string>::iterator ii=element.begin(); ii!=element.end(); ++ii) {
+		thisObj->indices[(*ii).first.c_str()].ind.erase((*ii).second.c_str());
+		if(thisObj->indices[(*ii).first.c_str()].ind.empty()) {
+			thisObj->indices.erase((*ii).first.c_str());
+		}
+   	}
+	thisObj->array.erase(thisObj->array.begin() + index);
+}
+
+// Get the length of the table - goes as .length() in JS.
+Handle<Value> LookupTable::Length(const Arguments& args) {
+	HandleScope scope;
+
+	LookupTable *thisObj = ObjectWrap::Unwrap<LookupTable>(args.This());
+	int len = thisObj->array.size();
+
+	return scope.Close(Number::New(len));
 }
 
 void LookupTable::PrepareIndices() {
