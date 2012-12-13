@@ -31,6 +31,7 @@ Handle<Value> LookupTable::New(const Arguments& args) {
 	return args.This();
 }
 
+// This method handles the inserts - goes as the .insert(Object element) method in JS.
 Handle<Value> LookupTable::Insert(const Arguments& args) {
 	HandleScope scope;
 	
@@ -40,24 +41,36 @@ Handle<Value> LookupTable::Insert(const Arguments& args) {
 	Local<Array> props = obj->GetPropertyNames();
 
 	int i = 0;
+
+	// This map will form a single element in the array(table).
 	std::map<std::string, std::string> itemMap;
+
+	// Iterate over the keys in the supplied object(associative array).
 	while(i < props->Length()) {
+		// Get the key name and convert it into a C++ usable string.
 		Local<String> key = props->Get(Integer::New(i))->ToString();
 		String::AsciiValue keyStr(key);
 
+		// Get the value for the key.
 		Local<String> val = obj->Get(key)->ToString();
 		String::AsciiValue valStr(val);
 
+		// Create the key-value pair in the map.
 		itemMap[*keyStr] = *valStr;
 
+		// Use the lookupkey structure to store to index.
+		// Uses two level maps. Stores the fields in the first level, and
+		// stores the values-element offset pair in the second level.
 		lookupkey lk;
 		lk.ind[*valStr] = (int)thisObj->array.size();
 		thisObj->indices[*keyStr] = lk;
 		i++;
 	}
+	// Insert the element map into our array vector.
 	thisObj->array.push_back(itemMap);
 }
 
+// Method to lookup a particular record in the table - goes as .lookup(field, key) in JS.
 Handle<Value> LookupTable::Lookup(const Arguments& args) {
 	HandleScope scope;
 
@@ -72,7 +85,7 @@ Handle<Value> LookupTable::Lookup(const Arguments& args) {
 }
 
 void LookupTable::PrepareIndices() {
-	
+	// TODO
 }
 
 NODE_MODULE(lookuptable, LookupTable::Init);

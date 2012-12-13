@@ -1,5 +1,5 @@
 {
     "name": "lookuptable",
     "version": "1.0.0",
-    "main": "./build/Release/hello"
+    "main": "./build/Release/lookuptable"
 }

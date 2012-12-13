@@ -16,3 +16,10 @@ var array = [
 ```
 
 This is like an in-memory table. Say, you wanted to lookup a record in this array where 'firstname=first3'. In the naive approach, you would do a linear search over the array. Pretty straightforward, but hurts in situations where you have thousands of records in the array. Thanks to the lookup table and its indexing, you can find a record in hashing like efficiency.
+
+Compiling
+=========
+
+```
+npm build .
+```
